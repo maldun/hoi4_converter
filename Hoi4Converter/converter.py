@@ -6,16 +6,43 @@ from . import parser
 import unittest
 import os
 
-U8 = 'utf-8'
+U8 = 'utf-8-sig' # MS BS ...
+INTEND = " "*4
+NL = '\n'
+EQ = ' = '
+LB = '{'
+RB = '}'
+SPACE = '__SPACE__'
+SEP = '/'
+RSEP = '__SEP__'
+MINUS = '__MINUS__'
+DOT = "__DOT__"
+FILE_REPLACEMENTS = ((' ', SPACE), ("-", MINUS), (".",DOT))
 
-def paradox2list(filename_or_text):
-    if os.path.isfile(filename_or_text):
-        with open(filename_or_text, 'r', encoding=U8) as f:
+def paradox2list(filename):
+    """
+    Takes a file from paradox and converts it to a Python list
+    """
+    with open(filename, 'r', encoding=U8) as f:
             text = f.read()
-    else:
-        text = filename_or_text
 
     return parser.parse_grammar(text)
+
+def list2paradox(list):
+    """
+    A converter which takes a lised from a parsed Paradox 
+    file and reconstructs the file.
+    """
+    pass
+
+def _recursive_build(liste):
+    code = ""
+    key, val = liste[0]
+    code += str(key) + EQ
+    if isinstance(val, list):
+        code += LB + NL + INTEND
+        
+    
 
 ########################
 # Tests                #
@@ -23,11 +50,15 @@ def paradox2list(filename_or_text):
 
 class ConverterTests(unittest.TestCase):
     def setUp(self):
-        self.fname = "../samples/r56_leader_portraits.gfx"
+        self.fnames = ["test/samples/r56_leader_portraits.gfx",
+                       "test/samples/AST - Australia.txt",
+                       ]
             
     def test_list2paradox(self):
-        result = paradox2list(self.fname)
-        self.assertEqual(len(result), 1)
+        nrs = [1, 101]
+        for nr, fname in zip(nrs, self.fnames):
+            result = paradox2list(fname)
+            self.assertEqual(len(result), nr)
 
 
 
