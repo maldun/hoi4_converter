@@ -8,17 +8,18 @@ sys.path.append(os.getcwd())
 
 import unittest
 import Hoi4Converter
-from Hoi4Converter import converter
+from Hoi4Converter import converter, mappings
 
-
+MODULES = [converter, mappings]
 
 if __name__ == "__main__":
     loader = unittest.TestLoader()
     suite  = unittest.TestSuite()
 
     # add tests to the test suite
-    tests = loader.loadTestsFromModule(converter)
-    suite.addTests(tests)
+    for module in MODULES:
+        tests = loader.loadTestsFromModule(module)
+        suite.addTests(tests)
 
     # initialize a runner, pass it your suite and run it
     runner = unittest.TextTestRunner(verbosity=3)
