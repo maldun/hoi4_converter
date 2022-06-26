@@ -133,10 +133,18 @@ snippet2 = """if = {
     }
 """
 
+snippet3 = """                    has_country_leader = {
+                        name = "Anarchist Commune"
+                        ruling_only = yes
+                        
+                    }
+"""
+
 class ConverterTests(unittest.TestCase):
     def setUp(self):
         self.fnames = ["test/samples/r56_leader_portraits.gfx",
                        "test/samples/AST - Australia.txt",
+                       "test/samples/r56i_laws_gender.txt",
                        ]
             
     def test_paradox2list(self):
@@ -146,7 +154,7 @@ class ConverterTests(unittest.TestCase):
             self.assertEqual(len(result), nr)
 
     def test_list2paradox(self):
-        snippets = [snippet1, snippet2]
+        snippets = [snippet1, snippet2, snippet3]
         for snip, fname in zip(snippets, self.fnames):
             result = paradox2list(fname)
             result = list2paradox(result)
