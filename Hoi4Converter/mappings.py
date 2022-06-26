@@ -5,9 +5,7 @@ import os
 import copy
 from . import converter as conv
 
-HAS_VAL = "HAS_VALUE"
-HAS_KEY = "HAS_KEY"
-HAS_OBJ = "HAS_OBJECT"
+MAP_MAP = {}
 
 
 class ObjectRetriever:
@@ -37,29 +35,39 @@ class ObjectRetriever:
     def __call__(self, liste, reference):
         return self.search(liste, reference)
 
+    
+def retriver(func):
+    MAP_MAP[func.__name__.upper()] = func
+    return ObjectRetriever(func)
 
-def _has_key(obj, key):
+
+@retriver
+def has_key(obj, key):
     if not isinstance(obj, list):
         return False
     if len(obj) > 1 and obj[0] == key:
         return True
     return False
 
-
-has_key = ObjectRetriever(_has_key)
-
-
-def _has_value(obj, val):
+@retriver
+def has_value(obj, val):
     if obj == val:
         return True
 
     return False
 
 
-has_value = ObjectRetriever(_has_value)
+@retriver
+def has_key_and_val(obj, key_val):
+    key, val = key_val
+    if not isinstance(obj, list):
+        return False
+    if len(obj) > 1 and obj[0] == key and obj[1] == val:
+        return True
+    return False
 
-
-def _contains(obj, val):
+@retriver
+def contains(obj, val):
     if isinstance(obj, list) is True:
         if val in obj:
             return True
@@ -67,10 +75,19 @@ def _contains(obj, val):
     return False
 
 
-contains = ObjectRetriever(_contains)
+@retriver
+def contains_multiple(obj, liste):
+    if isinstance(obj, list) is True:
+        if all(val in obj for val in liste):
+            return True
+
+        return False
 
 
 class ObjectManipulator:
+    def __init__(self, op):
+        self._operation = op
+    
     def _manipulate(self, obj, indices, *args):
         if len(indices) == 1:
             ind = indices[0]
@@ -80,37 +97,49 @@ class ObjectManipulator:
         inds = indices[1:]
         self._manipulate(obj[indices[0]], inds, *args)
         return obj
-        
 
-class Replacer(ObjectManipulator):
-    def _operation(self, obj, ind, to_replace):
-        obj[ind] = to_replace
-
-    def __call__(self, obj, indices, to_replace):
+    def manipulate(self, obj, indices, *args):
         obj = copy.deepcopy(obj)
-        self._manipulate(obj, indices, to_replace)
+        return self._manipulate(obj, indices, *args)
 
-replace = Replacer()
+    def __call__(self, obj, indices, *args):
+        return self.manipulate(obj, indices, *args)
 
-class Remover(ObjectManipulator):
-    def _operation(self, obj, ind):
-        del obj[ind]
+def operation(func):
+    MAP_MAP[func.__name__.upper()] = func
+    return ObjectManipulator(func)
 
-    def __call__(self, obj, indices):
-        return self._manipulate(obj, indices)
+    
+@operation
+def replace(obj, ind, to_replace):
+    obj[ind] = to_replace
 
-remove = Remover()
+
+@operation
+def remove(obj, ind, *args):
+    del obj[ind]
 
 
-def paradox_remove(liste):
-    pass
+@operation
+def add(obj, ind, to_add):
+    obj[ind].append(to_add)
 
-def paradox_add(liste):
-    pass
+    
+@operation
+def add_multiple(obj, ind, list_to_add):
+    obj += list_to_add
 
-def paradox_change(liste):
-    pass
 
+def apply_map(obj, mapping):
+    source, target = mapping
+    
+    crit, val = source
+    op, val2 = target
+    
+    found, inds = crit(obj, val)
+    for f, i in zip(found, inds):
+        obj = op(obj, i, val2)
+    return obj
 
 ########################
 # Tests                #
@@ -151,7 +180,7 @@ class ConverterTests(unittest.TestCase):
         self.assertEqual(len(found2), 2)
         for k in range(2):
             self.assertIn(inds2[k], inds)
-        
+            
     def test_has_value(self):
         obj = self.objects[1]
         val = ["infantry_weapons", [1]]
@@ -167,4 +196,79 @@ class ConverterTests(unittest.TestCase):
         found, inds = contains(obj, val)
         self.assertEqual(len(found), 1)
         self.assertIn(val, found[0])
+
+    def test_contains2(self):
+        obj = self.objects[1]
+        val = ["AST_oversized_fleet"]
+        found, inds = contains(obj, val)
+        self.assertEqual(len(found[0]),4)
+
+    def test_contains_multiple(self):
+         obj = self.objects[2]
+         val = [["original_tag", ["AST"]], ["original_tag", ["NZL"]]]
+         found, inds = contains_multiple(obj, val)
+         obj2 = found[0]
+         found2, inds2 = has_key(obj2, "any_owned_state")
+         self.assertEqual(len(found2), 1)
+
+    def test_add_multiple(self):
+        obj = self.objects[2]
+        key = "has_government"
+        val = "fascism"
+        to_add = [[key, ["national_populist"]],
+		 [key, ["paternal_autocrat"]],
+                  ]
+                  
+        found, inds = has_key(obj, key)
+        inds_found = [k for k, found in enumerate(found) if len(has_value(found, val)[0]) > 0]
+        foundf = [found[k] for k in inds_found]
+        indsf = [inds[k] for k in inds_found]
+
+        for f, i in zip(foundf, indsf):
+            obj = add_multiple(obj, i, to_add)
+
+        found2, inds2 = has_key(obj, "modifier")
+        for t in to_add:
+            self.assertIn(t, found2[4][1])
+
+    def test_has_key_and_val(self):
+        obj = self.objects[2]
+        key = "has_government"
+        val = ["fascism"]
+        to_add = [[key, ["national_populist"]],
+		 [key, ["paternal_autocrat"]],
+                  ]
+        found, inds = has_key_and_val(obj, [key, val])
+        self.assertEqual(len(found), 2)
+
+        for f, i in zip(found, inds):
+            obj = add_multiple(obj, i, to_add)
+
+        found2, inds2 = has_key(obj, "modifier")
+        for t in to_add:
+            self.assertIn(t, found2[4][1])
+
+    def test_mapping(self):
+        obj = self.objects[2]
+        key = "has_government"
+        val = ["fascism"]
+        to_add = [[key, ["national_populist"]],
+		 [key, ["paternal_autocrat"]],
+                  ]
+        source = [has_key_and_val, [key, val]]
+        target = [add_multiple, to_add]
+        new_obj = apply_map(obj,(source, target))
+        
+        found2, inds2 = has_key(new_obj, "modifier")
+        for t in to_add:
+            self.assertIn(t, found2[4][1])
+
+        source = [has_key_and_val, [key, val]]
+        target = [remove, []]
+        new_obj2 = apply_map(new_obj,(source, target))
+
+        found2, inds2 = has_key(new_obj2, "modifier")
+        self.assertNotIn([key, val], found2[4][1])
+
+
 
