@@ -52,6 +52,14 @@ has_key = ObjectRetriever(_has_key)
 def _has_value(obj, val):
     if obj == val:
         return True
+
+    return False
+
+
+has_value = ObjectRetriever(_has_value)
+
+
+def _contains(obj, val):
     if isinstance(obj, list) is True:
         if val in obj:
             return True
@@ -59,7 +67,8 @@ def _has_value(obj, val):
     return False
 
 
-has_value = ObjectRetriever(_has_value)
+contains = ObjectRetriever(_contains)
+
 
 class ObjectManipulator:
     def _manipulate(self, obj, indices, *args):
@@ -143,10 +152,19 @@ class ConverterTests(unittest.TestCase):
         for k in range(2):
             self.assertIn(inds2[k], inds)
         
-        
-        
-
     def test_has_value(self):
         obj = self.objects[1]
-        val = 1
+        val = ["infantry_weapons", [1]]
+
+        found, inds = has_value.search(obj, val)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0], val)
+
+    def test_contains(self):
+        obj = self.objects[1]
+        val = ["infantry_weapons", [1]]
+
+        found, inds = contains(obj, val)
+        self.assertEqual(len(found), 1)
+        self.assertIn(val, found[0])
 
