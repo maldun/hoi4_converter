@@ -62,8 +62,11 @@ def has_key_and_val(obj, key_val):
     key, val = key_val
     if not isinstance(obj, list):
         return False
-    if len(obj) > 1 and obj[0] == key and obj[2] == val:
+    if len(obj) > 1 and obj[0] == key and obj[1] == val:
         return True
+    if len(obj) > 2 and obj[0] == key and obj[2] == val and obj[1] in conv.RELS:
+        return True
+    
     return False
 
 @retriver
