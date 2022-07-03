@@ -79,6 +79,15 @@ def contains(obj, val):
 
 
 @retriver
+def is_relation_with_key(obj, key):
+    if not isinstance(obj, list):
+        return False
+    if len(obj) > 2 and obj[0] == key and obj[1] in conv.RELS:
+        return True
+
+    return False
+
+@retriver
 def contains_multiple(obj, liste):
     if isinstance(obj, list) is True:
         if all(val in obj for val in liste):
@@ -311,4 +320,15 @@ class ConverterTests(unittest.TestCase):
 
         obj = apply_map(obj, mapping)
         found, ind = has_key_and_val(obj, [key, [val]])
+        self.assertEqual(len(found), 0)
+
+    def test_is_relation_with_key(self):
+        obj = self.objects[4]
+        key = "fascism"
+
+        found, ind = is_relation_with_key(obj, key)
+        self.assertGreater(len(found), 0)
+        mapping = [[is_relation_with_key, key], [remove, key]]
+        obj = apply_map(obj, mapping)
+        found, ind = is_relation_with_key(obj, key)
         self.assertEqual(len(found), 0)
