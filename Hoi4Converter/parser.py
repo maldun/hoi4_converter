@@ -23,9 +23,9 @@ def _preprocess(txt):
 def parse_grammar(txt, debug=False):
     txt = _preprocess(txt)
 
-    LBRACE, RBRACE = map(pp.Suppress, "{}")  # Do not output
+    EQ, LBRACE, RBRACE = map(pp.Suppress, "={}")  # Do not output
     # Add those signs for completeness
-    EQ = pp.Char("=").setParseAction(lambda x: str(x[0]))
+    #EQ = pp.Char("=").setParseAction(lambda x: str(x[0]))
     LT = pp.Char("<").setParseAction(lambda x: str(x[0]))
     GT = pp.Char(">").setParseAction(lambda x: str(x[0]))
     comment = pp.Suppress("#") + pp.Suppress(pp.restOfLine)

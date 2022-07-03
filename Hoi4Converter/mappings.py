@@ -62,7 +62,7 @@ def has_key_and_val(obj, key_val):
     key, val = key_val
     if not isinstance(obj, list):
         return False
-    if len(obj) > 1 and obj[0] == key and obj[1] == val:
+    if len(obj) > 1 and obj[0] == key and obj[2] == val:
         return True
     return False
 

@@ -21,7 +21,7 @@ RSEP = '__SEP__'
 MINUS = '__MINUS__'
 DOT = "__DOT__"
 FILE_REPLACEMENTS = ((' ', SPACE), ("-", MINUS), (".",DOT))
-RELS = {'=','<','>'}
+RELS = {'<', '>'}
 
 def intend_code(code):
     """
@@ -56,8 +56,14 @@ def write_value(val):
 def write_object(member):
     #if member[0] == "limit":
     #    import pdb; pdb.set_trace()
-    key, rel, val = member
-    code = str(key) + f" {rel} "
+    if len(member) == 2:
+        key, val = member
+        rel_code = " = "
+    elif len(member) == 3 and member[1] in RELS:
+        key, rel, val = member
+        rel_code = f" {rel} "
+        
+    code = str(key) + rel_code
     # assume we have single value
     if len(val) == 1 and not isinstance(val[0], list):
         code += write_value(val[0])
@@ -92,12 +98,16 @@ def list2paradox(liste):
             else:
                 code += write_value(val)
         # value with = 
+        elif (isinstance(member, list) and len(member) == 2
+              and isinstance(member[0], str)
+              and isinstance(member[1], list)
+              ):
+            code += write_object(member)
         elif (isinstance(member, list) and len(member) == 3
               and isinstance(member[0], str)
               and member[1] in RELS
               and isinstance(member[2], list)
               ):
-
             code += write_object(member)
             
     return code
@@ -143,12 +153,15 @@ snippet3 = """                    has_country_leader = {
                     }
 """
 
+snippet_rel = """threat > 0.05"""
+
 class ConverterTests(unittest.TestCase):
     def setUp(self):
         self.fnames = ["test/samples/r56_leader_portraits.gfx",
                        "test/samples/AST - Australia.txt",
                        "test/samples/r56i_laws_gender.txt",
                        ]
+        self.fname_with_rel = "test/samples/r56i_laws_war.txt"
             
     def test_paradox2list(self):
         nrs = [1, 101]
@@ -159,12 +172,14 @@ class ConverterTests(unittest.TestCase):
     def test_list2paradox(self):
         snippets = [snippet1, snippet2, snippet3]
         for snip, fname in zip(snippets, self.fnames):
-            import pdb; pdb.set_trace()
             result = paradox2list(fname)
             result = list2paradox(result)
-
-
             self.assertIn(snip, result)
+
+    def test_list2paradoxwithrel(self):
+        result = paradox2list(self.fname_with_rel)
+        result = list2paradox(result)
+        self.assertIn(snippet_rel, result)
 
     def test_intend_code(self):
         snippet = "{0}a\n{0}b\n{0}"
