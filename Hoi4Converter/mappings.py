@@ -138,17 +138,27 @@ def apply_map(obj, mapping):
     
     crit, val = source
     op, val2 = target
-    
+
     found, inds = crit(obj, val)
+    # Delete is always special ...
+    # as it changes indices
+    if op == remove:
+        if len(found) == 0:
+            return obj
+        else:
+            obj = op(obj, inds[0], found[0])
+            return apply_map(obj, mapping)
+    
     for f, i in zip(found, inds):
         obj = op(obj, i, val2)
+
     return obj
 
 def apply_maps_on_file(in_file, out_file, maps):
     obj = conv.paradox2list(in_file)
     for mapping in maps:
         obj = apply_map(obj, mapping)
-    with open(out_file, 'w', encoding="utf-8") as file:
+    with open(out_file, 'w', encoding=conv.U8) as file:
         content = conv.list2paradox(obj)
         file.write(content)
     
@@ -161,6 +171,8 @@ class ConverterTests(unittest.TestCase):
         self.fnames = ["test/samples/r56_leader_portraits.gfx",
                        "test/samples/AST - Australia.txt",
                        "test/samples/r56i_laws_gender.txt",
+                       "test/samples/r56i_laws_war.txt",
+                       "test/samples/r56i_laws_leadership.txt",
                        ]
         self.objects = [conv.paradox2list(fname) for fname in self.fnames]
 
@@ -260,6 +272,15 @@ class ConverterTests(unittest.TestCase):
         for t in to_add:
             self.assertIn(t, found2[4][1])
 
+    def test_has_key_and_val2(self):
+        obj = self.objects[3]
+        key = "has_government"
+        val = ["fascism"]
+        key_and_val = [key, val]
+
+        found2, inds2 = has_key_and_val(obj, key_and_val)
+        self.assertEqual(len(found2), 1)
+
     def test_mapping(self):
         obj = self.objects[2]
         key = "has_government"
@@ -282,5 +303,12 @@ class ConverterTests(unittest.TestCase):
         found2, inds2 = has_key(new_obj2, "modifier")
         self.assertNotIn([key, val], found2[4][1])
 
+    def test_mapping2(self):
+        obj = self.objects[4]
+        key = "has_government"
+        val = "fascism"
+        mapping = [[has_key_and_val, [key, [val]]], [remove, [key,[val]]]]
 
-
+        obj = apply_map(obj, mapping)
+        found, ind = has_key_and_val(obj, [key, [val]])
+        self.assertEqual(len(found), 0)
