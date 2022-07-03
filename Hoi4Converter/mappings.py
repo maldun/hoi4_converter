@@ -141,6 +141,15 @@ def apply_map(obj, mapping):
         obj = op(obj, i, val2)
     return obj
 
+def apply_maps_on_file(in_file, out_file, maps):
+    obj = conv.paradox2list(in_file)
+    for mapping in maps:
+        obj = apply_map(obj, mapping)
+    with open(out_file, 'w', encoding="utf-8") as file:
+        content = conv.list2paradox(obj)
+        file.write(content)
+    
+
 ########################
 # Tests                #
 ########################
@@ -257,7 +266,7 @@ class ConverterTests(unittest.TestCase):
                   ]
         source = [has_key_and_val, [key, val]]
         target = [add_multiple, to_add]
-        new_obj = apply_map(obj,(source, target))
+        new_obj = apply_map(obj, (source, target))
         
         found2, inds2 = has_key(new_obj, "modifier")
         for t in to_add:

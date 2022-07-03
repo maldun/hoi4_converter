@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 import pyparsing as pp
 import re
@@ -23,7 +23,11 @@ def _preprocess(txt):
 def parse_grammar(txt, debug=False):
     txt = _preprocess(txt)
 
-    EQ, LBRACE, RBRACE = map(pp.Suppress, "={}")  # Do not output
+    LBRACE, RBRACE = map(pp.Suppress, "{}")  # Do not output
+    # Add those signs for completeness
+    EQ = pp.Char("=").setParseAction(lambda x: str(x[0]))
+    LT = pp.Char("<").setParseAction(lambda x: str(x[0]))
+    GT = pp.Char(">").setParseAction(lambda x: str(x[0]))
     comment = pp.Suppress("#") + pp.Suppress(pp.restOfLine)
     real = pp.Regex(r"[+-]?\d+\.\d*").setParseAction(lambda x: float(x[0]))
     integer = pp.Regex(r"[+-]?\d+").setParseAction(lambda x: int(x[0]))
@@ -54,7 +58,8 @@ def parse_grammar(txt, debug=False):
     str_types = (pp.dblQuotedString | unQuotedString)
     str_types.setName('str_types')
     obj = pp.Forward()
-    phrase = (str_types + EQ + (pp.Group(obj | data)))
+
+    phrase = (str_types + (EQ ^ LT ^ GT) + (pp.Group(obj | data)))
     phrase.setName('phrase')
     data_obj = (pp.OneOrMore(pp.Group(obj)) | pp.OneOrMore(pp.Group(phrase)) | pp.OneOrMore(pp.Group(data)))
     data_obj.setName('data_obj')

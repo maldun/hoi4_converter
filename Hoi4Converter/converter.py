@@ -10,6 +10,8 @@ U8 = 'utf-8-sig' # MS BS ...
 INTEND = " "*4
 NL = '\n'
 EQ = ' = '
+LT = ' < '
+GT = ' > '
 LB = '{'
 RB = '}'
 DQ = '"'
@@ -19,6 +21,7 @@ RSEP = '__SEP__'
 MINUS = '__MINUS__'
 DOT = "__DOT__"
 FILE_REPLACEMENTS = ((' ', SPACE), ("-", MINUS), (".",DOT))
+RELS = {'=','<','>'}
 
 def intend_code(code):
     """
@@ -53,8 +56,8 @@ def write_value(val):
 def write_object(member):
     #if member[0] == "limit":
     #    import pdb; pdb.set_trace()
-    key, val = member
-    code = str(key) + EQ
+    key, rel, val = member
+    code = str(key) + f" {rel} "
     # assume we have single value
     if len(val) == 1 and not isinstance(val[0], list):
         code += write_value(val[0])
@@ -74,10 +77,10 @@ def list2paradox(liste):
     """
     code = ""
     for member in liste:
-        
         # member is actually key:
         if isinstance(member, str):
-            if len(liste) == 2 and isinstance(liste[1], list): # liste is key object pair
+            # liste is key object pair
+            if len(liste) == 3 and liste[1] in RELS and isinstance(liste[2], list): 
                 code += write_object(liste)
             else:
                 code += write_value(member)
@@ -89,11 +92,11 @@ def list2paradox(liste):
             else:
                 code += write_value(val)
         # value with = 
-        elif (isinstance(member, list) and len(member) == 2
+        elif (isinstance(member, list) and len(member) == 3
               and isinstance(member[0], str)
-              and isinstance(member[1], list)
+              and member[1] in RELS
+              and isinstance(member[2], list)
               ):
-            
 
             code += write_object(member)
             
@@ -156,8 +159,11 @@ class ConverterTests(unittest.TestCase):
     def test_list2paradox(self):
         snippets = [snippet1, snippet2, snippet3]
         for snip, fname in zip(snippets, self.fnames):
+            import pdb; pdb.set_trace()
             result = paradox2list(fname)
             result = list2paradox(result)
+
+
             self.assertIn(snip, result)
 
     def test_intend_code(self):
