@@ -171,7 +171,7 @@ def apply_maps_on_file(in_file, out_file, maps):
     obj = conv.paradox2list(in_file)
     for mapping in maps:
         obj = apply_map(obj, mapping)
-    with open(out_file, 'w', encoding=conv.U8) as file:
+    with open(out_file, 'w', encoding=conv.UTF8) as file:
         content = conv.list2paradox(obj)
         file.write(content)
     

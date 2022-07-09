@@ -7,6 +7,7 @@ import unittest
 import os
 
 U8 = 'utf-8-sig' # MS BS ...
+UTF8 = 'utf-8'
 INTEND = " "*4
 NL = '\n'
 EQ = ' = '
