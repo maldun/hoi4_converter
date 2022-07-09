@@ -64,9 +64,13 @@ def has_key_and_val(obj, key_val):
         return False
     if len(obj) > 1 and obj[0] == key and obj[1] == val:
         return True
-    if len(obj) > 2 and obj[0] == key and obj[2] == val and obj[1] in conv.RELS:
-        return True
-    
+    if len(obj) > 2 and obj[0] == key and obj[2] == val:
+        try:
+             if obj[1] in conv.RELS:
+                 return True
+        except:
+            pass
+                     
     return False
 
 @retriver
@@ -134,7 +138,7 @@ def remove(obj, ind, *args):
 
 @operation
 def add(obj, ind, to_add):
-    obj[ind].append(to_add)
+    obj[ind] += [to_add]
 
     
 @operation
@@ -202,7 +206,7 @@ class ConverterTests(unittest.TestCase):
 
         found, inds = has_key.search(obj, key)
         self.assertEqual(len(found),1)
-        self.assertEqual(found[0][1][0], "AST")
+        self.assertEqual(found[0][1][0], '"AST"')
 
     def test_remove(self):
         obj = self.objects[2]
@@ -332,3 +336,15 @@ class ConverterTests(unittest.TestCase):
         obj = apply_map(obj, mapping)
         found, ind = is_relation_with_key(obj, key)
         self.assertEqual(len(found), 0)
+
+    def test_add2(self):
+        obj = self.objects[2]
+        key = "original_tag"
+        val = "TUR"
+        val2 = "OTT"
+        mapping = [[has_key_and_val, [key, [val]]], [add, [key, [val2]]]]
+        maps = [mapping]
+        for mapping in maps:
+            obj = apply_map(obj, mapping)
+        found2, inds2 = has_value(obj, val2)
+        self.assertEqual(len(found2),1)

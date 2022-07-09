@@ -47,7 +47,8 @@ def parse_grammar(txt, debug=False):
     date_type.setParseAction(convert_to_date).setName('date_type')
     # TODO Check if dateu is needed
 
-    pp.dblQuotedString.setParseAction(pp.removeQuotes)
+    # we actually want to keep quotes ...
+    #pp.dblQuotedString.setParseAction(pp.removeQuotes)
     pp.dblQuotedString.setName('dblQuotedString')
     unQuotedString = pp.Word(pp.alphanums + pp.alphas8bit + "_-.:?")  # 8bit for parsing accented characters
     # I had to put : there just for Stellaris saves

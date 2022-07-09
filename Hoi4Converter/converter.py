@@ -44,7 +44,7 @@ def paradox2list(filename):
 def write_value(val):
     code = ''
     if isinstance(val, str):
-        code += DQ + val + DQ + NL
+        code += val + NL
     elif val is True:
         code += 'yes' + NL
     elif val is False:
@@ -105,10 +105,14 @@ def list2paradox(liste):
             code += write_object(member)
         elif (isinstance(member, list) and len(member) == 3
               and isinstance(member[0], str)
-              and member[1] in RELS
               and isinstance(member[2], list)
               ):
-            code += write_object(member)
+            try:
+                if member[1] in RELS:
+                    code += write_object(member)
+            except:
+                pass
+
             
     return code
 
@@ -129,17 +133,17 @@ snippet2 = """if = {
     }
     create_operative_leader = {
         name = "Nancy Wake"
-        GFX = "GFX_portrait_kr_nancy_wake"
+        GFX = GFX_portrait_kr_nancy_wake
         traits = {
-            "operative_escape_artist"
+            operative_escape_artist
             
         }
         bypass_recruitment = no
         available_to_spy_master = yes
         female = yes
         nationalities = {
-            "NZL"
-            "AST"
+            NZL
+            AST
             
         }
         
@@ -174,6 +178,7 @@ class ConverterTests(unittest.TestCase):
         for snip, fname in zip(snippets, self.fnames):
             result = paradox2list(fname)
             result = list2paradox(result)
+
             self.assertIn(snip, result)
 
     def test_list2paradoxwithrel(self):
@@ -187,7 +192,7 @@ class ConverterTests(unittest.TestCase):
         icode = snippet.format(INTEND)
         result = intend_code(code)
         self.assertEqual(icode, result)
-        
+
             
 
 
