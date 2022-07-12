@@ -20,7 +20,8 @@ class ObjectRetriever:
         index_list = []
         
         for ind, member in enumerate(liste):
-            if self.criterium(member, reference) is True:
+            if self.criterium(member, reference,
+                              liste, indices + [ind]) is True:
                 objects += [member]
                 index_list += [indices + [ind]]
                 #return member, indices + [ind]
@@ -42,7 +43,7 @@ def retriver(func):
 
 
 @retriver
-def has_key(obj, key):
+def has_key(obj, key, org=None, inds=None):
     if not isinstance(obj, list):
         return False
     if len(obj) > 1 and obj[0] == key:
@@ -50,7 +51,7 @@ def has_key(obj, key):
     return False
 
 @retriver
-def has_value(obj, val):
+def has_value(obj, val, org=None, inds=None):
     if obj == val:
         return True
 
@@ -58,7 +59,7 @@ def has_value(obj, val):
 
 
 @retriver
-def has_key_and_val(obj, key_val):
+def has_key_and_val(obj, key_val, org=None, inds=None):
     key, val = key_val
     if not isinstance(obj, list):
         return False
@@ -74,16 +75,15 @@ def has_key_and_val(obj, key_val):
     return False
 
 @retriver
-def contains(obj, val):
+def contains(obj, val, org=None, inds=None):
     if isinstance(obj, list) is True:
         if val in obj:
             return True
 
     return False
 
-
 @retriver
-def is_relation_with_key(obj, key):
+def is_relation_with_key(obj, key, org=None, inds=None):
     if not isinstance(obj, list):
         return False
     if len(obj) > 2 and obj[0] == key and obj[1] in conv.RELS:
@@ -92,14 +92,22 @@ def is_relation_with_key(obj, key):
     return False
 
 @retriver
-def contains_multiple(obj, liste):
+def contains_multiple(obj, liste, org=None, inds=None):
     if isinstance(obj, list) is True:
         if all(val in obj for val in liste):
             return True
 
         return False
 
-
+@retriver
+def has_key_and_max_level(obj, key_and_level, org=None, inds=[]):
+    key, level = key_and_level
+    if not isinstance(obj, list):
+        return False
+    if len(obj) > 1 and obj[0] == key and len(inds) <= level:
+        return True
+    return False
+    
 class ObjectManipulator:
     def __init__(self, op):
         self._operation = op
@@ -154,7 +162,7 @@ def add_multiple_values(obj, ind, vals_to_add):
     obj[ind][val_ind] += vals_to_add
 
    
-def apply_map(obj, mapping, nr_found=False):
+def apply_map(obj, mapping, nr_found=False, level=None):
     source, target = mapping
     
     crit, val = source
@@ -383,3 +391,13 @@ class ConverterTests(unittest.TestCase):
         found2, inds2 = has_key(obj, key)
         for val in vals:
             self.assertIn(val ,found2[1][1])
+
+    def test_level(self):
+        obj = self.objects[1]
+        key = "set_technology"
+
+        found, inds = has_key_and_max_level(obj,[key,1])
+        found2, inds2 = has_key(obj, key)
+        self.assertEqual(len(found),1)
+        self.assertLess(len(found), len(found2))
+
