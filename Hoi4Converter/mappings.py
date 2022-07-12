@@ -146,7 +146,15 @@ def add_multiple(obj, ind, list_to_add):
     obj += list_to_add
 
 
-def apply_map(obj, mapping):
+@operation
+def add_multiple_values(obj, ind, vals_to_add):
+    val_ind = 1
+    if obj[ind][1] in list(conv.RELS):
+        val_ind = 2
+    obj[ind][val_ind] += vals_to_add
+
+   
+def apply_map(obj, mapping, nr_found=False):
     source, target = mapping
     
     crit, val = source
@@ -157,23 +165,39 @@ def apply_map(obj, mapping):
     # as it changes indices
     if op == remove:
         if len(found) == 0:
-            return obj
+            if nr_found is False:
+                return obj
+            else:
+                return obj, 0
         else:
             obj = op(obj, inds[0], found[0])
-            return apply_map(obj, mapping)
+            if nr_found is False:
+                return apply_map(obj, mapping)
+            else:
+                return apply_map(obj, mapping), len(found)
     
     for f, i in zip(found, inds):
         obj = op(obj, i, val2)
 
-    return obj
+    if nr_found is False:
+        return obj
+    return obj, len(found)
 
 def apply_maps_on_file(in_file, out_file, maps):
     obj = conv.paradox2list(in_file)
+    nr_changes = 0
     for mapping in maps:
-        obj = apply_map(obj, mapping)
-    with open(out_file, 'w', encoding=conv.UTF8) as file:
-        content = conv.list2paradox(obj)
-        file.write(content)
+        res, nr_found = apply_map(obj, mapping, nr_found=True)
+        if nr_found > 0:
+            obj = list(res)
+            nr_changes += nr_found
+        #obj = apply_map(obj, mapping)
+    if obj is not None and nr_changes > 0:
+        with open(out_file, 'w', encoding=conv.UTF8) as file:
+            content = conv.list2paradox(list(obj))
+            file.write(content)
+    else:
+        print(f"No operations on {out_file}!")
     
 
 ########################
@@ -348,3 +372,14 @@ class ConverterTests(unittest.TestCase):
             obj = apply_map(obj, mapping)
         found2, inds2 = has_value(obj, val2)
         self.assertEqual(len(found2),1)
+
+    def test_add_multiple_vals(self):
+        obj = self.objects[1]
+        key = "set_technology"
+        vals = [["etax_doctrine",[1]], ["camo", [1]]]
+        mapping = [[has_key, key], [add_multiple_values, vals]]
+        
+        obj = apply_map(obj, mapping)
+        found2, inds2 = has_key(obj, key)
+        for val in vals:
+            self.assertIn(val ,found2[1][1])
