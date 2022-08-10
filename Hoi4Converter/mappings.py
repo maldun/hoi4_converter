@@ -206,7 +206,12 @@ def apply_maps_on_file(in_file, out_file, maps):
             file.write(content)
     else:
         print(f"No operations on {out_file}!")
-    
+
+def get_object_from_inds(obj, inds):
+    curr = obj
+    for i in inds:
+        curr = curr[i]
+    return curr
 
 ########################
 # Tests                #
@@ -218,6 +223,7 @@ class ConverterTests(unittest.TestCase):
                        "test/samples/r56i_laws_gender.txt",
                        "test/samples/r56i_laws_war.txt",
                        "test/samples/r56i_laws_leadership.txt",
+                       "test/samples/r56_air_spirits.txt"
                        ]
         self.objects = [conv.paradox2list(fname) for fname in self.fnames]
 
@@ -401,3 +407,11 @@ class ConverterTests(unittest.TestCase):
         self.assertEqual(len(found),1)
         self.assertLess(len(found), len(found2))
 
+    def test_get_object(self):
+        obj = self.objects[5]
+        key = "air_force_spirit"
+        o, inds = has_key(obj, key)
+        to_get = get_object_from_inds(o, inds[0])
+
+        self.assertEqual(to_get[0], 'independent_air_force_spirit')
+        
