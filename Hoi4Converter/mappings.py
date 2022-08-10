@@ -411,7 +411,7 @@ class ConverterTests(unittest.TestCase):
         obj = self.objects[5]
         key = "air_force_spirit"
         o, inds = has_key(obj, key)
-        to_get = get_object_from_inds(o, inds[0])
+        to_get = get_object_from_inds(obj, inds[0])
 
-        self.assertEqual(to_get[0], 'independent_air_force_spirit')
+        self.assertEqual(to_get[1][0][0], 'independent_air_force_spirit')
         
