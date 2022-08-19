@@ -22,7 +22,7 @@ RSEP = '__SEP__'
 MINUS = '__MINUS__'
 DOT = "__DOT__"
 FILE_REPLACEMENTS = ((' ', SPACE), ("-", MINUS), (".",DOT))
-RELS = {'<', '>'}
+RELS = ['<', '>']
 
 def intend_code(code):
     """
@@ -103,7 +103,11 @@ def list2paradox(liste):
               and isinstance(member[0], str)
               and isinstance(member[1], list)
               ):
-            code += write_object(member)
+            try:
+                code += write_object(member)
+            except:
+                import pdb; pdb.set_trace()
+
         elif (isinstance(member, list) and len(member) == 3
               and isinstance(member[0], str)
               and isinstance(member[2], list)
@@ -203,9 +207,6 @@ class ConverterTests(unittest.TestCase):
         self.assertEqual(len(result[0]), 3)
         result = has_key_and_val(obj, ["idea", ['[IDEA_NAME]']])
         self.assertEqual(len(result[0]), 3)
-        
-
-            
 
 
 
