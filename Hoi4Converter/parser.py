@@ -50,7 +50,7 @@ def parse_grammar(txt, debug=False):
     # we actually want to keep quotes ...
     #pp.dblQuotedString.setParseAction(pp.removeQuotes)
     pp.dblQuotedString.setName('dblQuotedString')
-    unQuotedString = pp.Word(pp.alphanums + pp.alphas8bit + "_-.:?'")  # 8bit for parsing accented characters
+    unQuotedString = pp.Word(pp.alphanums + pp.alphas8bit + "_-.:?'[]")  # 8bit for parsing accented characters
     # I had to put : there just for Stellaris saves
     # Added ' as well since someone thought that would be a good idea ...
     unQuotedString.setName('unQuotedString')

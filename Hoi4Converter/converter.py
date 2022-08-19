@@ -167,6 +167,7 @@ class ConverterTests(unittest.TestCase):
                        "test/samples/r56i_laws_gender.txt",
                        ]
         self.fname_with_rel = "test/samples/r56i_laws_war.txt"
+        self.fname_with_square_brackets = "test/samples/China_decisions.txt"
             
     def test_paradox2list(self):
         nrs = [1, 101]
@@ -193,6 +194,16 @@ class ConverterTests(unittest.TestCase):
         icode = snippet.format(INTEND)
         result = intend_code(code)
         self.assertEqual(icode, result)
+
+    def test_handle_square_brackets(self):
+        fname = self.fname_with_square_brackets
+        from .mappings import has_key_and_val
+        obj = paradox2list(fname)
+        result = has_key_and_val(obj, ["has_idea", ['[IDEA_NAME]']])
+        self.assertEqual(len(result[0]), 3)
+        result = has_key_and_val(obj, ["idea", ['[IDEA_NAME]']])
+        self.assertEqual(len(result[0]), 3)
+        
 
             
 
