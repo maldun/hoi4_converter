@@ -46,8 +46,9 @@ def write_value(val):
     code = ''
     if isinstance(val, str) and val != '':
         code += val + NL
+    # An empty value is not allowed
     elif isinstance(val, str) and val == '':
-        code += '{} ' + NL
+        code += LB + RB + NL
     elif val is True:
         code += 'yes' + NL
     elif val is False:
@@ -213,9 +214,8 @@ class ConverterTests(unittest.TestCase):
 
     def test_handle_empty_brackets(self):
         fname = self.fname_with_empty_brackets
-        result = paradox2list(fname)
-        result = list2paradox(result)
-        import pdb; pdb.set_trace()
+        obj = paradox2list(fname)
+        result = list2paradox(obj)
         self.assertIn("40 = {}", result)
 
 
