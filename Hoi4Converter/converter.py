@@ -44,8 +44,10 @@ def paradox2list(filename):
 
 def write_value(val):
     code = ''
-    if isinstance(val, str):
+    if isinstance(val, str) and val != '':
         code += val + NL
+    elif isinstance(val, str) and val == '':
+        code += '{} ' + NL
     elif val is True:
         code += 'yes' + NL
     elif val is False:
@@ -172,6 +174,7 @@ class ConverterTests(unittest.TestCase):
                        ]
         self.fname_with_rel = "test/samples/r56i_laws_war.txt"
         self.fname_with_square_brackets = "test/samples/China_decisions.txt"
+        self.fname_with_empty_brackets = "test/samples/INC - Indochina.txt"
             
     def test_paradox2list(self):
         nrs = [1, 101]
@@ -207,6 +210,14 @@ class ConverterTests(unittest.TestCase):
         self.assertEqual(len(result[0]), 3)
         result = has_key_and_val(obj, ["idea", ['[IDEA_NAME]']])
         self.assertEqual(len(result[0]), 3)
+
+    def test_handle_empty_brackets(self):
+        fname = self.fname_with_empty_brackets
+        result = paradox2list(fname)
+        result = list2paradox(result)
+        import pdb; pdb.set_trace()
+        self.assertIn("40 = {}", result)
+
 
 
 
