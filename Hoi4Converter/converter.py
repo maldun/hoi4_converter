@@ -176,6 +176,7 @@ class ConverterTests(unittest.TestCase):
         self.fname_with_rel = "test/samples/r56i_laws_war.txt"
         self.fname_with_square_brackets = "test/samples/China_decisions.txt"
         self.fname_with_empty_brackets = "test/samples/INC - Indochina.txt"
+        self.fname_with_AT_symbol = "test/samples/BAT - United Baltic Duchy.txt"
             
     def test_paradox2list(self):
         nrs = [1, 101]
@@ -217,6 +218,12 @@ class ConverterTests(unittest.TestCase):
         obj = paradox2list(fname)
         result = list2paradox(obj)
         self.assertIn("40 = {}", result)
+
+    def test_handle_empty_brackets(self):
+        fname = self.fname_with_AT_symbol
+        obj = paradox2list(fname)
+        result = list2paradox(obj)
+        self.assertIn("BAT.BAT_mission_general_@LIT = THIS", result)
 
 
 
