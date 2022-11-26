@@ -29,6 +29,6 @@ jobs:
     - name: install packages
       run: python -m pip install --user pyparsing
     - name: Check contents
-      run: ls -lh >> content.txt; cat content.txt
+      run: du -lh >> content.txt; cat content.txt
     - name: Run Unittests
       run: python test/unittests.py
