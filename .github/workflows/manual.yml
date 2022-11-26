@@ -28,5 +28,7 @@ jobs:
     # Runs a single command using the runners shell
     - name: install packages
       run: python -m pip install --user pyparsing
+    - name: Check contents
+      run: ls
     - name: Run Unittests
       run: python test/unittests.py
