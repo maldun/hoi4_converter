@@ -12,7 +12,7 @@ on:
         # Friendly description to be shown in the UI instead of 'name'
         description: 'Run Unittests'
         # Default value if no value is explicitly provided
-        default: 'World'
+        # default: 'World'
         # Input has to be provided for the workflow to run
         required: false
 
@@ -29,6 +29,6 @@ jobs:
     - name: install packages
       run: python -m pip install --user pyparsing
     - name: Check contents
-      run: ls
+      run: ls >> content.txt; cat content.txt
     - name: Run Unittests
       run: python test/unittests.py
