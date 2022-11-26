@@ -177,6 +177,7 @@ class ConverterTests(unittest.TestCase):
         self.fname_with_square_brackets = "test/samples/China_decisions.txt"
         self.fname_with_empty_brackets = "test/samples/INC - Indochina.txt"
         self.fname_with_AT_symbol = "test/samples/BAT - United Baltic Duchy.txt"
+        self.fname_with_percent = "test/samples/gui_sample.txt"
             
     def test_paradox2list(self):
         nrs = [1, 101]
@@ -225,6 +226,11 @@ class ConverterTests(unittest.TestCase):
         result = list2paradox(obj)
         self.assertIn("BAT.BAT_mission_general_@LIT = THIS", result)
 
+    def test_percent(self):
+        fname = self.fname_with_percent
+        obj = paradox2list(fname)
+        result = list2paradox(obj)
+        self.assertIn('width = 100%', result)
 
 
 
