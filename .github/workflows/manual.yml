@@ -29,6 +29,6 @@ jobs:
     - name: install packages
       run: python -m pip install --user pyparsing
     - name: Check contents
-      run: du -lh >> content.txt; cat content.txt
+      run: ls -lh /home/runner/work/hoi4_converter >> content.txt; cat content.txt
     - name: Run Unittests
       run: python test/unittests.py
