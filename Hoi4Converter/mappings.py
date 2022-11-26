@@ -414,3 +414,4 @@ class ConverterTests(unittest.TestCase):
         to_get = get_object_from_inds(obj, inds[0])
 
         self.assertEqual(to_get[1][0][0], 'independent_air_force_spirit')
+
