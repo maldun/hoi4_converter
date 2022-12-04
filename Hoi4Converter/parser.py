@@ -32,6 +32,7 @@ def parse_grammar(txt, debug=False):
     real = pp.Regex(r"[+-]?\d+\.\d*").setParseAction(lambda x: float(x[0]))
     integer = pp.Regex(r"[+-]?\d+").setParseAction(lambda x: int(x[0]))
     percent = pp.Regex(r"[+-]?\d+%").setParseAction(lambda x: str(x[0]))
+    numbered_var = pp.Regex(r"\d+\.[a-zA-Z_.:?@]+").setParseAction(lambda x: str(x[0]))
     yes = pp.CaselessKeyword("yes").setParseAction(pp.replaceWith(True))
     no = pp.CaselessKeyword("no").setParseAction(pp.replaceWith(False))
 
@@ -56,7 +57,8 @@ def parse_grammar(txt, debug=False):
     # Added ' as well since someone thought that would be a good idea ...
     unQuotedString.setName('unQuotedString')
 
-    data = (date_type | real | percent | integer | yes | no | pp.dblQuotedString | unQuotedString)
+    data = (numbered_var | date_type | numbered_var | real | percent | integer | yes | no
+            | pp.dblQuotedString | unQuotedString)
     data.setName('data')
     str_types = (pp.dblQuotedString | unQuotedString)
     str_types.setName('str_types')
