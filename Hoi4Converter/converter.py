@@ -240,16 +240,13 @@ class ConverterTests(unittest.TestCase):
         self.assertIn("ohio_factories = 261.building_level@industrial_complex",
                       result)
 
-
-
-
-
-
-
-
-
-
-
-
-
+    def test_alternative_date(self):
+        snippet = """modifier = {
+                factor = 2
+                date > 1940-01-01
+                
+            }
+        """
+        result = parser.parse_grammar(snippet)
+        self.assertEqual('1940-01-01', result[0][1][1][2][0])
 

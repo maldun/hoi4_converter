@@ -47,6 +47,8 @@ def parse_grammar(txt, debug=False):
     # Account for "negative dates" and things like "1.1.1"
     date_type = pp.Regex(r"\-?(?P<year>\d{1,4})\.(?P<month>\d\d?)\.(?P<day>\d\d?)")
     date_type.setParseAction(convert_to_date).setName('date_type')
+    date_type2 = pp.Regex(r"\-?(?P<year>\d{1,4})\-(?P<month>\d\d?)\-(?P<day>\d\d?)")
+    date_type2.setParseAction(convert_to_date).setName('date_type2')
     # TODO Check if dateu is needed
 
     # we actually want to keep quotes ...
@@ -57,7 +59,8 @@ def parse_grammar(txt, debug=False):
     # Added ' as well since someone thought that would be a good idea ...
     unQuotedString.setName('unQuotedString')
 
-    data = (numbered_var | date_type | numbered_var | real | percent | integer | yes | no
+    data = (numbered_var | date_type | date_type2
+            | numbered_var | real | percent | integer | yes | no
             | pp.dblQuotedString | unQuotedString)
     data.setName('data')
     str_types = (pp.dblQuotedString | unQuotedString)
