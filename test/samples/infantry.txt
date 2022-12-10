@@ -1,0 +1,45 @@
+
+technologies = {
+
+        
+	winter_clothes_1944 = {
+
+		category_all_infantry = {
+			acclimatization_cold_climate_gain_factor = 0.15f
+			default_morale = 0.01
+		}
+		
+		modifier = {
+			winter_attrition = -0.05
+		}
+
+		research_cost = 1.5
+		start_year = 1954
+		folder = {
+			name = infantry_folder
+			position = { x = 7 y = @1954 }
+		}
+		
+		categories = {
+			infantry_weapons
+			winter_clothing_tech
+		}
+		
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 3
+				OR = {
+					original_tag = CAN
+					original_tag = SWE
+					original_tag = FIN
+					original_tag = SAM
+					original_tag = GRL
+					original_tag = ICE
+					original_tag = QBC
+					original_tag = RUS
+				}		
+			}				
+		}
+	}
+}
