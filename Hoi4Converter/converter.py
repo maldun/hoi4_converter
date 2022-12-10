@@ -179,6 +179,7 @@ class ConverterTests(unittest.TestCase):
         self.fname_with_AT_symbol = "test/samples/BAT - United Baltic Duchy.txt"
         self.fname_with_percent = "test/samples/gui_sample.txt"
         self.fname_with_numbered_vars = "test/samples/01_American Civil War effects.txt"
+        self.fname_infantry_tech = "test/samples/infantry.txt"
             
     def test_paradox2list(self):
         nrs = [1, 101]
@@ -250,3 +251,9 @@ class ConverterTests(unittest.TestCase):
         result = parser.parse_grammar(snippet)
         self.assertEqual('1940-01-01', result[0][1][1][2][0])
 
+    def test_number_suffix(self):
+        fname = self.fname_infantry_tech
+        obj = paradox2list(fname)
+        self.assertEqual(obj[0][1][0][1][0][1][0][1][0], '0.15f')
+        result = list2paradox(obj)
+        self.assertIn("acclimatization_cold_climate_gain_factor = 0.15f", result)
