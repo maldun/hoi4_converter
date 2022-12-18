@@ -257,3 +257,13 @@ class ConverterTests(unittest.TestCase):
         self.assertEqual(obj[0][1][0][1][0][1][0][1][0], '0.15f')
         result = list2paradox(obj)
         self.assertIn("acclimatization_cold_climate_gain_factor = 0.15f", result)
+
+    def test_slash(self):
+        code = """
+        spriteType = {
+		name = GFX_GER_advanced_heavy_td
+		texturefile = gfx/interface/technologies/ger_advanced_heavy_td.dds
+	}
+        """
+        obj = parser.parse_grammar(code)
+        self.assertEqual(obj[0][1][1][1][0], 'gfx/interface/technologies/ger_advanced_heavy_td.dds')
