@@ -4,6 +4,29 @@ The idea of this package is to provide tools for parsing, writing and modifying
 HOI4 files. It should enable modders to automate the boring tasks and let them focus 
 on the creation process.
 
+The Package was originally based on [ClauseWizard by Shadark](https://github.com/Shadark/ClauseWizard) 
+but grew to be its own package.
+
+## Installation
+
+### Requirements
+
+The package needs Python 3.10 or higher and the package pyparsing, which can be installed via
+
+```
+pip install pyparsing
+```
+
+### Installation Steps
+
+[PyPI Repo can be found here](https://pypi.org/project/hoi4-converter/)
+
+Installation with:
+
+```
+pip install hoi4-converter
+```
+
 ## Examples
 
 The parser allows to convert Hoi4 code into lists of lists objects:
