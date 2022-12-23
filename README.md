@@ -29,6 +29,104 @@ pip install hoi4-converter
 
 ## Examples
 
+I assume some basic knowldege of Python in this section. If you're new check out the [official Python
+tutorial](https://docs.python.org/3/tutorial/). The package can only be as powerful as your Python skills.
+
+### A first example
+
+Let's start with something simple to get some ideas. Assume you are in the folder
+of interface/ and we investigate for example the file [r56_leader_portraits.gfx](https://github.com/maldun/hoi4_converter/blob/main/test/samples/r56_leader_portraits.gfx) (you can find it in [test/samples of the source code](https://github.com/maldun/hoi4_converter/tree/main/test/samples). Now we start Python from the commandline:
+
+```python
+>>> from Hoi4Converter.converter import paradox2list
+>>> obj = paradox2list("r56_leader_portraits.gfx")
+```
+obj is a list of lists in Python. We can now for example access the first sprite in the list,
+using the proper indies
+```python
+>>> obj[0][1][0]
+['spriteType', [['name', ['"GFX_CZE_Portrait_milan_hodza"']], ['textureFile', ['"gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds"']]]]
+```
+The reason we need lists is that Paradox files are not dictionaries but proper code, so keywords can repeat.
+Also this is the result the pyparsing parser returns) 
+
+This can be tiresome ofc. to search through and also it can happen that something we search for is hidden
+deeper due to some OR or IF. Luckily Hoi4Converter provides us with some tools. Let's for example
+search for all 'textureFile' entries in the graphics:
+
+```python
+>>> from Hoi4Converter.mappings import has_key
+>>> objects, indices = has_key.search(obj)
+```
+The variable objects now is a list of the objects we found. So the first entry is:
+```python
+>>> objects[0]
+['textureFile', ['"gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds"']]
+```
+We see here also the basic structure of these list objects: 'textureFile' is the **key** word which defines
+the object, the second entry ['"gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds"'] is the **value** of the
+object. We can use the list2paradox function to look at the corresponding code again:
+
+```python
+>>> print(list2paradox([objects[0]]))
+textureFile = "gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds"
+>>> print(list2paradox([objects[1]]))
+textureFile = "gfx/leaders/CZE/r56_portrait_CZE_Radola_Gajda.dds"
+```
+Note that I added [] around the objets. The reason is that the reverse-parser needs to be given a 
+proper output, as the struture is based on the pyparsing structure. So a little playing around sure
+does not hurt to get the indices right. For comparsion
+```python
+>>> print(list2paradox(objects[1]))
+textureFile
+"gfx/leaders/CZE/r56_portrait_CZE_Radola_Gajda.dds"
+```
+is understandable but it wouldn't be the proper code. So we have to be careful with the brackets!.
+
+The variable indices is a corresponding list of the indices where inside of obj the entry was found:
+```python
+>>> indices[0]
+[0, 1, 0, 1, 1]
+>>> obj[0][1][0][1][1]
+['textureFile', ['"gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds"']]
+>>> 
+```
+This would be quite a lot to type, so here is the shortcut:
+```python
+>>> from Hoi4Converter.mappings import get_object_from_inds
+>>> get_object_from_inds(obj, indices[1])
+['textureFile', ['"gfx/leaders/CZE/r56_portrait_CZE_Radola_Gajda.dds"']]
+```
+But for now it would be enough for us to collect all the file names so that we can check everything is there:
+```python
+>>> from Hoi4Converter.mappings import get_object_from_inds
+>>> get_object_from_inds(obj, indices[1])
+['textureFile', ['"gfx/leaders/CZE/r56_portrait_CZE_Radola_Gajda.dds"']]
+>>> filenames = []
+>>> for o in objects:
+...     filename = o[1][0] # access filename
+...     filename = filename.replace('"','').replace("'",'') # get rid of quotes
+...     filenames += [filename]
+... 
+>>> filenames
+['gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds', 'gfx/leaders/CZE/r56_portrait_CZE_Radola_Gajda.dds', ...
+]
+```
+Now we can actually do stuff! For example checking if the files from our .gfx are actually there,
+and write the checklist into a .json file which can be opened with any text editor:
+```python
+>>> import os
+>>> rt56_folder = os.path.expanduser("~/.local/share/Steam/steamapps/workshop/content/394360/2076426030/")
+>>> is_there = {}
+>>> for file in filenames: is_there[file] = os.path.isfile(os.path.join(rt56_folder, file))
+>>> is_there
+{'gfx/leaders/CZE/r56_portrait_CZE_Milan_Hodza.dds': False, ...} 
+>>> import json
+>>> with open('gfx_there.json', 'w') as fp: fp.write(json.dumps(is_there))
+```
+
+### More examples
+
 The parser allows to convert Hoi4 code into lists of lists objects:
 
 We can create objects from code:
@@ -263,6 +361,7 @@ def apply_equipment_maps(general_maps, specific_maps):
 ```
 
 For more examples look into my scripts I use for my own mod: [https://github.com/maldun/autobahn/tree/main/.scripts](https://github.com/maldun/autobahn/tree/main/.scripts)
+I also created a small graphical tool as a showcase: [HoiIdeaWizard](https://github.com/maldun/hoi4_spirit_wizard)
 
 
 ## License
