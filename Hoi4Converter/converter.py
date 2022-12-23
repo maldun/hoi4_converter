@@ -49,12 +49,21 @@ def intend_code(code):
     result = NL.join(lines)
     return result
 
-def paradox2list(filename):
+def paradox2list(filename, code=True):
     """
-    Takes a file from paradox and converts it to a Python list
+    Takes a file or code from paradox and converts it to a Python list.
+    The c
     """
-    with open(filename, 'r', encoding=U8) as f:
+    if os.path.isfile(filename):
+        with open(filename, 'r', encoding=U8) as f:
             text = f.read()
+    else:
+        # If the code flag is false we fore the assumption the input has
+        # to be file!
+        if code is False:
+            raise FileNotFoundError(f"Error: File {filename} not found!")
+        else:
+            text = filename
 
     return parser.parse_grammar(text)
 
@@ -283,3 +292,18 @@ class ConverterTests(unittest.TestCase):
         """
         obj = parser.parse_grammar(code)
         self.assertEqual(obj[0][1][1][1][0], 'gfx/interface/technologies/ger_advanced_heavy_td.dds')
+
+    def test_direct_code_input(self):
+        code = """
+        spriteType = {
+		name = GFX_GER_advanced_heavy_td
+		texturefile = gfx/interface/technologies/ger_advanced_heavy_td.dds
+	}
+        """
+        obj = parser.parse_grammar(code)
+        obj2 = paradox2list(code)
+        self.assertEqual(obj, obj2)
+
+        with self.assertRaises(FileNotFoundError) as context:
+            paradox2list(code, code=False)
+        
